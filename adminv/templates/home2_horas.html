@@ -1,0 +1,589 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+    <!-- Carga el archivo CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home2.css' %}">
+    <!-- Agrega el enlace a jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Agrega el enlace a jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- Agrega el enlace a Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <div id="tipo_Div" style="display: none;">{{ entorno.tipo_div|safe }}</div>
+
+
+    <nav class="navbar navbar-expand-md navbar-light responsive" id="neubar1">
+        <div class="container">
+            <a class="navbar-brand">
+                <img src='{{entorno.robohash}}' height="60" alt='Robotito' />
+                <p style="color:white">{{ entorno.usuario }}</p>
+            </a>
+            
+
+            {% if mensaje %}
+            <div class="alert alert-info" role="alert" id="mensaje">
+                {{ entorno.mensaje }}
+            </div>
+            {% endif %}
+
+            <a href="{% url 'home2' %}">
+                <button class="btn btn-outline-light">
+                    <i class="fa-regular fa-hand-point-left" style="color: #ffffff;"></i> Volver
+                </button>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <form method="POST" action="{% url 'horas_informe' %}" id="formulario">
+            {% csrf_token %}
+            
+            <div class="container px-1 text-center">
+                <div class="row">
+                    <div class="col-12">
+                            <div class="input-group date" id="datepicker">
+                                <div class="datepicker">
+                                    <label for="fecha_picker" class="form-label text-light">Seleccione la Fecha</label>
+                                    {% if entorno.fecha0 %}
+                                    <input type="date" class="form-control" id="fecha_picker" name="fecha_picker" value={{entorno.fecha0}} max={{entorno.hoy}} required>
+                                    {% else %}
+                                    <input type="date" class="form-control" id="fecha_picker" name="fecha_picker" value={{entorno.hoy}} max={{entorno.hoy}} required>
+                                    {% endif %}
+                                </div>
+                            </div>
+                    </div>
+                    <div class="col-6">
+                            <div class="input-group date" id="fechaIni_picker" style="display: none;">
+                                <div class="form-outline datepicker">
+                                    <label for="fecha_inicio" class="form-label text-light">Fecha inicio</label>
+                                    {% if entorno.fecha0 %}
+                                    <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value={{entorno.fechaini}} max={{entorno.hoy}} required>
+                                    {% else %}
+                                    <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value={{entorno.hoy}} max={{entorno.hoy}} required>
+                                    {% endif %}
+                                </div>
+                            </div>
+                    </div>
+                    <div class="col-6">
+                            <div class="input-group date" id="fechaFin_picker" style="display: none;">
+                                <div class="form-outline datepicker pb-3">
+                                    <label for="fecha_fin" class="form-label text-light">Fecha fin</label>
+                                    {% if entorno.fecha0 %}
+                                    <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" value={{entorno.fechafin}} max={{entorno.hoy}} required>
+                                    {% else %}
+                                    <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" value={{entorno.hoy}} max={{entorno.hoy}} required>
+                                    {% endif %}
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row g-0 text-center pb-4">
+                <div class="col-sm-10 col-md-10 col-lg-10 col-xl-10 mt-4 mb-2">
+                    <div class="btn-group mt-4" role="group" aria-label="Basic radio toggle button group">
+                        <input type="radio" class="btn-check periodo-button" name="periodo" id="diario" value="diario" checked data-target="rango-datepickers"  {{entorno.chk_diario}}>
+                        <label class="btn btn-outline-primary" for="diario">Diario</label>
+
+                        <input type="radio" class="btn-check periodo-button" name="periodo" id="semanal" value="semanal" data-target="rango-datepickers" {{entorno.chk_semanal}}>
+                        <label class="btn btn-outline-primary" for="semanal">Semanal</label>
+
+                        <input type="radio" class="btn-check periodo-button" name="periodo" id="mensual" value="mensual" data-target="rango-datepickers"  {{entorno.chk_mensual}}>
+                        <label class="btn btn-outline-primary" for="mensual">Mensual</label>
+
+                        <input type="radio" class="btn-check periodo-button" name="periodo" id="rango" value="rango" data-target="rango-datepickers" {{entorno.chk_rango}}>
+                        <label class="btn btn-outline-primary" for="rango">Rango</label>
+                    </div>
+                    <button type="submit" class="btn btn-outline-light mt-4">Aplicar Filtro</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Agrega clases y un identificador a la tabla de resultados diarios -->
+    <div id="div-diario" class="opcion" data-tipo="diario" style="display: none; margin-bottom: 40px;">
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table table-auto table-striped table-dark md" id="tabla-resultados-diario">
+                    <caption style='color:white;'>Registros diario {{entorno.fecha0}} </caption>
+                    <thead >
+                        <tr>
+                            <th class="col-md-2" id="fecha">Fecha</th>
+                            <th class="col-md-2" id="hora">Hora</th>
+                            <th class="col-md-4" id="tipo">Tipo</th>
+                            <th class="col-md-4" id="tipo">Dirección</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in context.horas_informe_list %}
+                        <tr>
+                            {% if registro.tipo == 'J0' or registro.tipo == 'J1' %}
+                            <td class="text-primary">{{ registro.fecha|date:"d/m/Y" }}</td>
+                            <td class="text-primary">{{ registro.hora }}</td>
+                            <td class="text-primary">{{ registro.tipo_texto }}</td>
+                            <td class="text-primary">
+                                <a href="https://www.google.com/maps?q={{ registro.latitud }},{{ registro.longitud }}" style='color:rgb(82, 82, 82);' target="_blank">
+                                    {{ registro.direccion }}
+                                </a>
+                            </td>
+
+                            {% elif registro.tipo == 'B0' or registro.tipo == 'B1' %}
+                            <td class="text-success">{{ registro.fecha|date:"d/m/Y" }}</td>
+                            <td class="text-success">{{ registro.hora }}</td>
+                            <td class="text-success">{{ registro.tipo_texto }}</td>
+                            <td class="text-primary">
+                                <a href="https://www.google.com/maps?q={{ registro.latitud }},{{ registro.longitud }}"  style='color:rgb(82, 82, 82);' target="_blank">
+                                    {{ registro.direccion }}
+                                </a>
+                            </td>                    
+                            {% else %}
+                            <td class="text-warning">{{ registro.fecha|date:"d/m/Y" }}</td>
+                            <td class="text-warning">{{ registro.hora }}</td>
+                            <td class="text-warning">{{ registro.tipo_texto }}</td>
+                            <td class="text-primary">
+                                <a href="https://www.google.com/maps?q={{ registro.latitud }},{{ registro.longitud }}" style='color:rgb(82, 82, 82);' target="_blank">
+                                    {{ registro.direccion }}
+                                </a>
+                            </td>                    
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="container">
+                <div class="table-responsive">
+                    <table class="table table-responsive table-striped table-dark md" id="tabla-resultadosR">
+                        <caption style='color:white;'>Resumen de Diario - {{entorno.fecha0}}</caption>
+                        <tr>
+                            <th style='color:white;' scope="row">Total Horas Jornada:</th>
+                            <td style='color:white;' class="fw-bold">{{ context.total_horas_jornada }}</td>
+                        </tr>
+                        <tr>
+                            <th style='color:white;' scope="row">Total Horas Bocadillo:</th>
+                            <td style='color:white;' class="fw-bold">{{ context.total_horas_bocadillo }}</td>
+                        </tr>
+                        <tr>
+                            <th style='color:white;' scope="row">Total Horas Salida Extra:</th>
+                            <td style='color:white;' class="fw-bold">{{ context.total_horas_salida_extra }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agrega clases y un identificador a la tabla de resultados semanales -->
+    <div id="div-semanal" class="opcion" data-tipo="semanal" style="display: none; margin-bottom: 40px;">
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table table-striped table-dark table-responsive md" id="tabla-resultados-diario">
+                    <caption style='color:white;'>Registros semanal del {{entorno.inicio_semana}} al {{entorno.fin_semana}}  </caption>
+                    <thead >
+                        <tr>
+                            <th id="fecha">Fecha</th>
+                            <th id="hora">Jornada</th>
+                            <th id="tipo">Bocadillo</th>
+                            <th id="tipo">Salidas</th>
+                            <th id="tipo">Horas</th>
+                            <th id="tipo">Diferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in context.horas_informe_list %}
+                        <tr>
+                            <td class="text-white">{{ registro.fecha }}</td>
+                            <td class="text-white">{{ registro.total_jornada }}</td>
+                            <td class="text-white">{{ registro.total_bocadillo }}</td>
+                            <td class="text-white">{{ registro.total_salida_extra }}</td>
+                            <td class="text-white">{{ registro.horas_trabajadas }}</td>
+                            <td class="{% if registro.eficiencia_laboral_hhmmss.0 == '-' %}text-danger{% else %}text-white{% endif %}">
+                                {{ registro.eficiencia_laboral_hhmmss }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="container">
+                <div class="table-responsive">
+                    <table class="table table-responsive table-striped table-dark md" id="tabla-resultadosR">
+                        <caption style='color:white;'>Resumen semanal del {{entorno.inicio_semana}} al {{entorno.fin_semana}}</caption>
+                        <tr>
+                            <th scope="row">Total Horas Jornada:</th>
+                            <td class="fw-bold">{{ context.total_horas_jornada_semana }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Bocadillo:</th>
+                            <td class="fw-bold">{{ context.total_horas_bocadillo_semana }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Salida Extra:</th>
+                            <td class="fw-bold">{{ context.total_horas_salida_extra_semana }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Utilizadas:</th>
+                            <td class="fw-bold">{{ context.total_horas_trabajadas_semana }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas por {{ context.total_dias_trabajados }} días(8hs diarias):</th>
+                            <td class="fw-bold">{{ context.horas_utiles_semana }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Diferencia:</th>
+                            <td class="fw-bold {% if context.diferencia_semana_class == 'text_danger' %}text-danger{% elif context.diferencia_semana_class == 'text_green' %}text-success{% endif %}">{{ context.diferencia_semana }}</td>
+
+                        </tr>
+                    </table>
+                </div>
+                <!-- Crea un contenedor para el chart -->
+                <div id="chart-container" style="display: flex; justify-content: center;margin-bottom: 80px;">
+                    <canvas id="chartSemanal"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Agrega clases y un identificador a la tabla de resultados mensuales -->
+    <div id="div-mensual" class="opcion" data-tipo="mensual" style="display: none; margin-bottom: 40px;">
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table table-striped table-dark table-responsive md" id="tabla-resultados-mensual">
+                    <caption style='color:white;'>Registros semanal del {{entorno.fecha_inicio}} al {{entorno.fecha_fin}}  </caption>
+                    <thead >
+                        <tr>
+                            <th id="fecha">Fecha</th>
+                            <th id="hora">Jornada</th>
+                            <th id="tipo">Bocadillo</th>
+                            <th id="tipo">Salidas</th>
+                            <th id="tipo">Horas</th>
+                            <th id="tipo">Diferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in context.horas_informe_list %}
+                        <tr>
+                            <td class="text-white">{{ registro.fecha }}</td>
+                            <td class="text-white">{{ registro.total_jornada }}</td>
+                            <td class="text-white">{{ registro.total_bocadillo }}</td>
+                            <td class="text-white">{{ registro.total_salida_extra }}</td>
+                            <td class="text-white">{{ registro.horas_trabajadas }}</td>
+                            <td class="{% if registro.eficiencia_laboral_hhmmss.0 == '-' %}text-danger{% else %}text-white{% endif %}">
+                                {{ registro.eficiencia_laboral_hhmmss }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="container">
+                <div class="table-responsive">
+                    <table class="table table-responsive table-striped table-dark md" id="tabla-resultadosR">
+                        <caption style='color:white;'>Resumen semanal del {{entorno.fecha_inicio}} al {{entorno.fecha_fin}}</caption>
+                        <tr>
+                            <th scope="row">Total Horas Jornada:</th>
+                            <td class="fw-bold">{{ context.total_horas_jornada_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Bocadillo:</th>
+                            <td class="fw-bold">{{ context.total_horas_bocadillo_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Salida Extra:</th>
+                            <td class="fw-bold">{{ context.total_horas_salida_extra_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Utilizadas:</th>
+                            <td class="fw-bold">{{ context.total_horas_trabajadas_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas por {{ context.total_dias_trabajados }} días(8hs diarias):</th>
+                            <td class="fw-bold">{{ context.horas_utiles_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Diferencia:</th>
+                            <td class="fw-bold {% if context.diferencia_semana_class == 'text_danger' %}text-danger{% elif context.diferencia_semana_class == 'text_green' %}text-success{% endif %}">{{ context.diferencia_mes }}</td>
+
+                        </tr>
+                    </table>
+                </div>
+                <!-- Crea un contenedor para el chart -->
+                <div id="chart-container" style="display: flex; justify-content: center;margin-bottom: 80px;">
+                    <canvas id="chartMensual"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agrega clases y un identificador a la tabla de resultados de rango -->
+    <div id="div-rango" class="opcion" data-tipo="rango" style="display: none; margin-bottom: 40px;">
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table table-striped table-dark table-responsive md" id="tabla-resultados-mensual">
+                    <caption style='color:white;'>Registros semanal del {{entorno.fecha_inicio}} al {{entorno.fecha_fin}}  </caption>
+                    <thead >
+                        <tr>
+                            <th id="fecha">Fecha</th>
+                            <th id="hora">Jornada</th>
+                            <th id="tipo">Bocadillo</th>
+                            <th id="tipo">Salidas</th>
+                            <th id="tipo">Horas</th>
+                            <th id="tipo">Diferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in context.horas_informe_list %}
+                        <tr>
+                            <td class="text-white">{{ registro.fecha }}</td>
+                            <td class="text-white">{{ registro.total_jornada }}</td>
+                            <td class="text-white">{{ registro.total_bocadillo }}</td>
+                            <td class="text-white">{{ registro.total_salida_extra }}</td>
+                            <td class="text-white">{{ registro.horas_trabajadas }}</td>
+                            <td class="{% if registro.eficiencia_laboral_hhmmss.0 == '-' %}text-danger{% else %}text-white{% endif %}">
+                                {{ registro.eficiencia_laboral_hhmmss }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="container">
+                <div class="table-responsive">
+                    <table class="table table-responsive table-striped table-dark md" id="tabla-resultadosR">
+                        <caption style='color:white;'>Resumen semanal del {{entorno.fecha_inicio}} al {{entorno.fecha_fin}}</caption>
+                        <tr>
+                            <th scope="row">Total Horas Jornada:</th>
+                            <td class="fw-bold">{{ context.total_horas_jornada_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Bocadillo:</th>
+                            <td class="fw-bold">{{ context.total_horas_bocadillo_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Salida Extra:</th>
+                            <td class="fw-bold">{{ context.total_horas_salida_extra_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas Utilizadas:</th>
+                            <td class="fw-bold">{{ context.total_horas_trabajadas_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Horas por {{ context.total_dias_trabajados }} días(8hs diarias):</th>
+                            <td class="fw-bold">{{ context.horas_utiles_mes }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Diferencia:</th>
+                            <td class="fw-bold {% if context.diferencia_semana_class == 'text_danger' %}text-danger{% elif context.diferencia_semana_class == 'text_green' %}text-success{% endif %}">{{ context.diferencia_mes }}</td>
+
+                        </tr>
+                    </table>
+                </div>
+                <!-- Crea un contenedor para el chart -->
+                <div id="chart-container" style="display: flex; justify-content: center;margin-bottom: 80px;">
+                    <canvas id="chartRango"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+<script>
+$(document).ready(function() {
+    let tipo_Div = document.getElementById('tipo_Div').textContent;
+
+    // Esperar 4 segundos (4000 milisegundos) y luego ocultar el mensaje
+    setTimeout(function () {
+        var mensaje = document.getElementById("mensaje");
+        if (mensaje !== null) { // Verificar si la variable "mensaje" está definida
+            mensaje.style.display = "none"; // Ocultar el mensaje
+        }
+    }, 4000);
+
+    // Función para mostrar u ocultar los date pickers según la opción seleccionada
+    function actualizarDatePickers() {
+        const isChecked = document.querySelector(".periodo-button:checked").value === "rango";
+        const datepicker = document.getElementById("datepicker");
+        const fechaIniPicker = document.getElementById("fechaIni_picker");
+        const fechaFinPicker = document.getElementById("fechaFin_picker");
+
+        datepicker.style.display = isChecked ? "none" : "block";
+        fechaIniPicker.style.display = isChecked ? "block" : "none";
+        fechaFinPicker.style.display = isChecked ? "block" : "none";
+
+        // Llama a la función para mostrar/ocultar los DIVs
+        mostrarDivSegunTipo()
+    }
+
+    // Escuchar cambios en los botones de período
+    const periodoButtons = document.querySelectorAll(".periodo-button");
+    periodoButtons.forEach(function(button) {
+        button.addEventListener("change", actualizarDatePickers);
+    });
+
+    // Función para mostrar el DIV correspondiente según el valor de tipo_Div y ocultar los demás
+    function mostrarDivSegunTipo() {
+        const divs = document.querySelectorAll(".opcion"); // Reemplaza "tu-div" con la clase de tus DIVs
+        // Iterar a través de los DIVs y mostrar/ocultar según el valor de tipo_Div
+        divs.forEach(function (div) {
+            
+            if (div.id === tipo_Div) {
+                div.style.display = "block";
+                console.log("Tipo DIV " + div.id + " block")
+            } else {
+                div.style.display = "none";
+                console.log("Tipo DIV " + div.id + " none")
+            }
+        });
+    }
+
+    // Llamar a la función inicialmente para establecer el estado correcto
+    actualizarDatePickers();    
+
+});
+</script>
+
+<div id="datos-diarios" style="display: none;">{{ context.datos_diarios|safe }}</div>
+
+<script>
+  // Obtén los datos del div
+let datosDiarios = JSON.parse(document.getElementById('datos-diarios').textContent);
+console.log(datosDiarios)
+// Definir la función convertirHorasAMinutos
+function convertirHorasAMinutos(horas) {
+    if (!horas) {
+        return 0;
+    }
+    let partes = horas.split(':');
+    return parseInt(partes[0]) * 60 + parseInt(partes[1]);
+}
+
+function generarGrafico(datos, options) {
+    let labels = datos.map(d => d.nombre_dia);
+    let colores = ['#0d6efd', '#198754', '#ffc107'];
+    let datasets = ['horas_trabajadas', 'bocadillos', 'salidas_extras'].map((tipo, i) => {
+        return {
+            label: tipo,
+            data: datos.map(d => {
+                let dato = d.datos.find(dd => dd.tipo === tipo);
+                return dato ? convertirHorasAMinutos(dato.valor) : 0;
+            }),
+            backgroundColor: colores[i],
+        };
+    });
+
+    // Añadir el dataset 'rendimiento' para cambiar el color en función del valor
+    datasets.push({
+        label: 'rendimiento',
+        data: datos.map(d => {
+            let dato = d.datos.find(dd => dd.tipo === 'rendimiento');
+            return dato ? convertirHorasAMinutos(dato.valor) : 0;
+        }),
+        backgroundColor: function(context) {
+            var index = context.dataIndex;
+            var value = context.dataset.data[index];
+            return value >= 8 * 60 ? '#99ff33' : '#dc3545';
+        }
+    });
+
+    let div_Grafico = document.getElementById('tipo_Div').textContent;
+    let tipoGraf;
+    if (div_Grafico === "div-semanal") {
+        tipoGraf = 'chartSemanal';
+    } else if (div_Grafico === "div-mensual") {
+        tipoGraf = 'chartMensual';
+    } else {
+        tipoGraf = 'chartRango';
+    }
+
+    console.log(tipoGraf)
+    new Chart(document.getElementById(tipoGraf), {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#fff'
+                    },
+                    grid: {
+                        color: '#fff'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value, index, values) {
+                            let horas = Math.floor(value / 60);
+                            let minutos = value % 60;
+                            return `${horas}h ${minutos}m`;
+                        },
+                        color: '#fff'
+                    },
+                    grid: {
+                        color: '#fff'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#fff'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            var value = context.parsed.y;
+                            let horas = Math.floor(value / 60);
+                            let minutos = value % 60;
+                            label += `${horas}h ${minutos}m`;
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Cambiar etiquetas
+    datasets.forEach(function(dataset) {
+        if (dataset.label === "horas_trabajadas") {
+            dataset.label = "Horas Totales";
+        }
+        if (dataset.label === "bocadillos") {
+            dataset.label = "Hora Bocadillo";
+        }
+        if (dataset.label === "salidas_extras") {
+            dataset.label = "Salidas Personales";
+        }
+        if (dataset.label === "rendimiento") {
+            dataset.label = "Horas Trabajadas";
+        }
+    });
+}
+
+// Llamada a la función para generar el gráfico
+generarGrafico(datosDiarios);
+</script>
+
+
+</body>
+
+{% endblock %}

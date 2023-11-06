@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card mt-4" style="width: 50rem;">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-sm-10 col-md-10 col-lg-10 col-xl-10">
+                    <h1>Cliente</h1>
+                    {{cliente.nombre}} {{cliente.apellido}}
+                </div>
+
+                <div class="col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                    <form action="{% url 'cliente_eliminar' cliente.id %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-warning">
+                            <i class="fa-solid fa-trash-can" style="color: #ffffff;"></i>
+                            <p style="color: #ffffff;"> Eliminar </p>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{error}}</li>
+            <li class="list-group-item">
+                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <form method="POST">
+
+                        {{error}}
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="username">Nombre:</label>
+                            <input type="text" name="nombre" id="id_nombre" class="form-control"
+                                placeholder="Nombre del usuario" required value="{{cliente.nombre}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="apellido">Apellido:</label>
+                            <input type="text" name="apellido" id="id_apellido" class="form-control"
+                                placeholder="Apellido del usuario" required value="{{cliente.apellido}}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="correo">Correo electrónico:</label>
+                            <input type="email" name="correo" id="id_correo" class="form-control"
+                                placeholder="Correo electrónico" value="{{cliente.correo}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tel1">Número de telefono:</label>
+                            <input type="text" name="tel1" id="id_tel1" class="form-control"
+                                placeholder="telefono del usuario" required value="{{cliente.tel1}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tel1">Número de telefono otro:</label>
+                            <input type="text" name="tel2" id="id_tel2" class="form-control"
+                                placeholder="telefono del usuario" value="{{cliente.tel2}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notas">Notas:</label>
+                            <textarea class="form-control" aria-label="With textarea" name="notas" id="id_notas"
+                                placeholder="Notas" value="{{cliente.notas}}"></textarea>
+                        </div>
+                        <div class="form-check">
+                            {% if cliente.activo %}
+                            <input class="form-check-input" type="checkbox" name="activo" checked id="id_activo">
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" name="activo" id="id_activo">
+                            {% endif %}
+                            <label class="form-check-label" for="id_activo">
+                                Cliente activo
+                            </label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="created_at">Created_at: </label>
+                            <input type="text" name="created_at" id="id_created_at" class="form-control" disabled value="{{cliente.created_at}}">
+                        </div>
+                        <button class="btn btn-primary">
+                            Actualizar
+                        </button>
+
+                    </form>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <a href="{% url 'clientes' %}">
+                    <button class="btn btn-outline-secondary">
+                        <i class="fa-regular fa-hand-point-left" style="color: #808080;"></i> Volver
+                    </button>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

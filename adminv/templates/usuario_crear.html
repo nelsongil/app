@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container py-5">
+    <div class="card" style="width: 25rem;">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="card-header">
+                Nueva Usuario
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    {{error}}
+                </li>
+                <li class="list-group-item">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{form.as_p}}
+                        <button class="btn btn-primary">
+                            <i class="fa-solid fa-file-circle-plus" style="color: #ffffff;"></i> Crear
+                        </button>
+                    </form>
+                </li>
+                <li class="list-group-item">
+                    <a href="{% url 'usuarios' %}">
+                        <button class="btn btn-outline-secondary">
+                            <i class="fa-regular fa-hand-point-left" style="color: #808080;"></i> Volver
+                        </button>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

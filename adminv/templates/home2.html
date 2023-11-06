@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<head>
+    <!-- Carga el archivo CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home2.css' %}">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-sm" id="neubar1">
+        <div class="container">
+            <a class="navbar-brand">
+                <img src='{{entorno.robohash}}' height="60" alt='Robotito' />
+                <p style="color:white">{{ entorno.usuario }}</p>
+            </a>
+            
+            {% if mensaje %}
+            <div class="alert alert-info" role="alert" id="mensaje">
+                {{ entorno.mensaje }}
+            </div>
+            {% endif %}
+            <a href="{% url 'horas_informe' %}">
+                <button type="button" class="btn btn-outline-light">Horas <i class="fa-regular fa-clock" style="color: #ffffff;"></i></button>
+            </a>
+        </div>
+    </nav>
+    <div class="container-fluid align-items-center h-100">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-3" style="width: 15rem;">
+                    <div class="card-header">
+                        Control Horario
+                    </div>
+                    <form id="marcarForm" action="{% url 'marcar_tarjeta' %}" method="POST">
+                        {% csrf_token %}
+                        <!-- Campos ocultos para enviar los datos -->
+                        <input type="hidden" name="boton_id" value="">
+                        <input type="hidden" name="latitud" value="">
+                        <input type="hidden" name="longitud" value="">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <p class="text-center text-primary-emphasis">Jornada Laboral:</p>
+                                <div class="text-center">
+                                    <div class="btn-group" role="group" aria-label="Jornada Laboral">
+                                        <button type="submit" name="boton_id" id="J0" class='{{ entorno.botones_habilitados.J0B }}' value="J0" data-latitud="{{ latitude }}" data-longitud="{{ longitude }}" {% if botones_habilitados.J0 %} disabled {% endif %}>Inicio</button>
+                                        <button type="submit" name="boton_id" id="J1" class='{{ entorno.botones_habilitados.J1B }}' value="J1" data-latitud="{{ latitude }}" data-longitud="{{ longitude }}" {% if botones_habilitados.J1 %} disabled {% endif %}>Final</button>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <p class="text-center text-success-emphasis">Hora del Bocadillo:</p>
+                                <div class="text-center">
+                                    <div class="btn-group" role="group" aria-label="Hora del Bocadillo:">
+                                        <button type="submit" name="boton_id" id="B0" class='{{ entorno.botones_habilitados.B0B }}' value="B0" data-latitud="{{ latitude }}" data-longitud="{{ longitude }}" {% if botones_habilitados.B0 %} disabled {% endif %}>Inicio</button>
+                                        <button type="submit" name="boton_id" id="B1" class='{{ entorno.botones_habilitados.B1B }}' value="B1" data-latitud="{{ latitude }}" data-longitud="{{ longitude }}" {% if botones_habilitados.B1 %} disabled {% endif %}>Final</button>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <p class="text-center text-warning-emphasis">Salida en Horario Laboral:</p>
+                                <div class="text-center">
+                                    <div class="btn-group" role="group" aria-label="Salida en Horario Laboral:">
+                                        <button type="submit" name="boton_id" id="S0" class='{{ entorno.botones_habilitados.S0B }}' value="S0" data-latitud="{{ latitude }}" data-longitud="{{ longitude }}" {% if botones_habilitados.S0 %} disabled {% endif %}>Salida</button>
+                                        <button type="submit" name="boton_id" id="S1" class='{{ entorno.botones_habilitados.S1B }}' value="S1" data-latitud="{{ latitude }}" data-longitud="{{ longitude }}" {% if botones_habilitados.S1 %} disabled {% endif %}>Vuelta</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.querySelector("#marcarForm").addEventListener("submit", function (event) {
+            // Evitamos que el formulario se envíe automáticamente
+            event.preventDefault();
+
+            // Obtenemos el botón que se hizo clic
+            const boton =  document.activeElement;
+
+            // Obtenemos los datos necesarios desde los atributos de datos del botón
+            const botonId = boton.value;
+            
+            // Llamamos a la función geoFindMe() para obtener las coordenadas
+            
+            geoFindMe(function(position) {
+                const latitud = position.coords.latitude;
+                const longitud = position.coords.longitude;
+
+                // Agregamos estos datos como campos ocultos al formulario
+                event.target.querySelector("input[name='boton_id']").value = botonId;
+                event.target.querySelector("input[name='latitud']").value = latitud;
+                event.target.querySelector("input[name='longitud']").value = longitud;
+
+                // Finalmente, enviamos el formulario
+                event.target.submit();
+            });
+        });
+        
+        function geoFindMe(callback) {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    callback(position);
+                }, function (error) {
+                    console.error('Error obteniendo la ubicación:', error);
+                });
+            } else {
+                console.error('Geolocalización no soportada en este navegador.');
+            }
+        }
+
+        // Esperar 4 segundos (4000 milisegundos) y luego ocultar el mensaje
+        setTimeout(function() {
+            var mensaje = document.getElementById("mensaje");
+            mensaje.style.display = "none"; // Ocultar el mensaje
+        }, 4000);
+    </script>
+
+
+</body>
+{% endblock %}

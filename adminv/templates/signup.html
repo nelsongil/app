@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container py-5">
+    <section class="card card-body">
+        <div class="col-md-4 offset-md-4">
+            
+            <form action="/signup/" method="POST" class="card card-body text-center">
+                <div class="container">
+                <code class="text-center" style="color:#2e0dd4">{{error}}</code>
+            </div>
+                <h1>Signup</h1>
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="username">Nombre de usuario:</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Nombre de usuario">
+                </div>
+                <div class="mb-3">
+                    <label for="password1">Contraseña:</label>
+                    <input type="password" name="password1" id="password1" class="form-control" placeholder="Contraseña">
+                </div>
+                <div class="mb-3">
+                    <label for="password2">Comprueba la Contraseña:</label>
+                    <input type="password" name="password2" id="password2" class="form-control" placeholder="Comprueba la Contraseña">
+                </div>
+                <button class="btn btn-primary">
+                    Signup
+                </button>
+            </form>
+        </div>
+    </section>
+</main>
+
+{% endblock %}

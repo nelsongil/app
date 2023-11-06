@@ -1,0 +1,44 @@
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    table {
+        width: auto;
+        /* Esto permitirá que la tabla se ajuste al contenido */
+        max-width: 100%;
+        /* Puedes ajustar esto según tus necesidades */
+    }
+
+    #neubar {
+        background: rgb(86, 86, 86);
+        box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.4)
+    }
+
+    .nav-item .active {
+        border-radius: 6px;
+        background: linear-gradient(145deg, #7d85ff, #5d1fbb);
+        box-shadow: 4px 4px 8px #716af1,
+            -4px -4px 8px #7b74ef;
+    }
+
+    #neubar .dropdown-menu a:hover {
+        color: #454545
+    }
+
+    #neubar .nav-item {
+        margin: auto 4px;
+    }
+
+    #neubar a {
+
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    #neubar .dropdown-menu {
+        background: #545454
+    }
+
+    a.navbar-brand {
+        color: #454545
+    }

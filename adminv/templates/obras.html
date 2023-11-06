@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<div class="container my-5 mt-4">
+    <div class="row">
+        <div class="col-sm-8 col-md-8 col-lg-8 col-xl-8 mt-4 mb-4">
+            <h1><i class="fa-solid fa-building fa-sm" style="color: #292929;"></i> Obras</h1>
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2 col-xl-2 mt-4 mb-4">
+            <a class="btn btn-primary" href="/obras/crear/"><i class="fa-solid fa-file-circle-plus"
+                    style="color: #ffffff;"></i> Nueva</a>
+        </div>
+    </div>
+
+    <form method="get" action="{% url 'obras' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                <select name="filtro" style="color: #5bc0de;" class="form-select form-select-m g mb-3">
+                    {% for choice in filtro_form.filtro.field.choices %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                <button type="submit" class="btn btn-outline-info">Filtrar</button>
+            </div>
+            <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                <a class="btn btn-secondary" href="/clientes/">Clientes</a>
+            </div>
+        </div>
+    </form>
+
+
+
+
+
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="table-responsive">
+                <table class="table">
+                    <caption>Listado</caption>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Dirección</th>
+                            <th>Teléfono</th>
+                            <th>Activo</th>
+                            <th>Editar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obras in entity %}
+                        <tr>
+                            {% if obras.activo %}
+                            <td class="text-success">{{obras.cliente}}</td>
+                            <td class="text-success">{{obras.dir}}</td>
+                            <td class="text-success">{{obras.tel}}</td>
+                            <td class="text-success"><i class="fa-solid fa-check text-success"></i></td>
+                            <td class="text-success">
+                                <a class="btn btn-success" href="{% url 'obra_detalle' obras.id %}">
+                                    <i class="fa-regular fa-pen-to-square text-white"></i>
+                                </a>
+                            </td>
+                            {% else %}
+                            <td class="text-danger">{{obras.cliente}}</td>
+                            <td class="text-danger">{{obras.dir}}</td>
+                            <td class="text-danger">{{obras.tel}}</td>
+                            <td class="text-danger"><i class="fa-solid fa-ban text-danger"></i></td>
+                            <td class="text-danger">
+                                <a class="btn btn-success" href="{% url 'obra_detalle' obras.id %}">
+                                    <i class="fa-regular fa-pen-to-square text-white"></i>
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                {% include 'paginator.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

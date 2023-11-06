@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5 mt-4">
+    <div class="row mx-auto">
+        <div class="col-sm-8 col-md-8 col-lg-8 col-xl-8 mt-4 mb-4">
+            <h1><i class="fa-solid fa-users-between-lines fa-sm" style="color: #292929;"></i> Clientes</h1>
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2 col-xl-2 mt-4 mb-4">
+            <a class="btn btn-primary" href="/clientes/crear/"><i class="fa-solid fa-file-circle-plus"
+                    style="color: #ffffff;"></i> Nueva</a>
+        </div>
+    </div>
+
+    <form method="get" action="{% url 'clientes' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                <select name="filtro" style="color: #5bc0de;" class="form-select form-select-m g mb-3">
+                    {% for choice in filtro_form.filtro.field.choices %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                <button type="submit" class="btn btn-outline-info">Filtrar</button>
+            </div>
+            <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                <a class="btn btn-secondary" href="/obras/">Obras</a>
+            </div>
+        </div>
+    </form>
+
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <table class="table">
+                    <caption>Listado</caption>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Correo</th>
+                            <th>Tel 1</th>
+                            <th>Tel 2</th>
+                            <th>Notas</th>
+                            <th>Activo</th>
+                            <th>Editar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in entity %}
+                        <tr>
+                            {% if cliente.activo %}
+                            <td style="color:#28a905">{{cliente.nombre}}</td>
+                            <td style="color:#28a905">{{cliente.apellido}}</td>
+                            <td style="color:#28a905">{{cliente.correo}}</td>
+                            <td style="color:#28a905">{{cliente.tel1}}</td>
+                            <td style="color:#28a905">{{cliente.tel2}}</td>
+                            <td style="color:#28a905">{{cliente.notas}}</td>
+                            <td style="color:#28a905"><i class="fa-solid fa-check" style="color: #21a70a;"></i></td>
+                            <td style="color:#28a905">
+                                <a class="btn btn-success" href="{% url 'cliente_detalle' cliente.id %}">
+                                    <i class="fa-regular fa-pen-to-square" style="color: #ffffff;"></i>
+                                </a>
+                            </td>
+                            {% else %}
+                            <td style="color:#FF0000">{{cliente.nombre}}</td>
+                            <td style="color:#FF0000">{{cliente.apellido}}</td>
+                            <td style="color:#FF0000">{{cliente.correo}}</td>
+                            <td style="color:#FF0000">{{cliente.tel1}}</td>
+                            <td style="color:#FF0000">{{cliente.tel2}}</td>
+                            <td style="color:#FF0000">{{cliente.notas}}</td>
+                            <td style="color:#FF0000"><i class="fa-solid fa-ban" style="color: #ff0000;"></i></td>
+                            <td style="color:#FF0000">
+                                <a class="btn btn-success" href="{% url 'cliente_detalle' cliente.id %}">
+                                    <i class="fa-regular fa-pen-to-square" style="color: #ffffff;"></i>
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div>
+                    {% include 'paginator.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

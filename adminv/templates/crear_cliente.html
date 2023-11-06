@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container py-5">
+    <div class="card" style="width: 25rem;">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12"></div>
+        <div class="card-header">
+            Nuevo Cliente
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                {{error}}
+            </li>
+
+            <li class="list-group-item">
+                <form>
+                    {% for field in form %}
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">{{ field.label_tag }}</label>
+                        <div class="col-sm-9">
+                            {{ field }}
+                            {% if field.errors %}
+                            {% for error in field.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </li>
+            <li class="list-group-item">
+                <a href="{% url 'obras' %}">
+                    <button class="btn btn-outline-secondary">
+                        <i class="fa-regular fa-hand-point-left" style="color: #808080;"></i> Volver
+                    </button>
+                </a>
+            </li>
+        </ul>
+    </div>
+    </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-sm-8 col-md-8 col-lg-8 col-xl-8 mt-4 mb-4">
+            <h1><i class="fa-solid fa-fill-drip fa-sm" style="color: #292929;"></i> Materiales</h1>
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2 col-xl-2 mt-4 mb-4">
+            <a class="btn btn-primary" href="/materiales/crear/"><i class="fa-solid fa-file-circle-plus"
+                    style="color: #ffffff;"></i> Nueva Material</a>
+        </div>
+    </div>
+
+    <form method="get" action="{% url 'materiales' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                <select name="filtro" style="color: #5bc0de;" class="form-select form-select-m g mb-3">
+                    {% for choice in filtro_form.filtro.field.choices %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                <button type="submit" class="btn btn-outline-info">Filtrar</button>
+            </div>
+            <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                <a class="btn btn-secondary" href="/materialesf/">Familias</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="table-responsive">
+                <table class="table">
+                    <caption>Listado</caption>
+                    <thead>
+                        <tr>
+                            <th>Familia</th>
+                            <th>Nombre</th>
+                            <th>Decripción</th>
+                            <th>Activo</th>
+                            <th>Editar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for materiales in entity %}
+                        <tr>
+                            {% if materiales.activo %}
+                            <td class="text-success">{{materiales.familia}}</td>
+                            <td class="text-success">{{materiales.nombre}}</td>
+                            <td class="text-success">{{materiales.descrip}}</td>
+                            <td class="text-success"><i class="fa-solid fa-check text-success"></i></td>
+                            <td class="text-success">
+                                <a class="btn btn-success" href="{% url 'material_detalle' materiales.id %}">
+                                    <i class="fa-regular fa-pen-to-square text-white"></i>
+                                </a>
+                            </td>
+                            {% else %}
+                            <td class="text-danger">{{materiales.familia}}</td>
+                            <td class="text-danger">{{materiales.nombre}}</td>
+                            <td class="text-danger">{{materiales.descrip}}</td>
+                            <td class="text-danger"><i class="fa-solid fa-ban text-danger"></i></td>
+                            <td class="text-danger">
+                                <a class="btn btn-success" href="{% url 'material_detalle' materiales.id %}">
+                                    <i class="fa-regular fa-pen-to-square text-white"></i>
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                {% include 'paginator.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
